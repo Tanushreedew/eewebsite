@@ -36,69 +36,69 @@ from django.db.models.functions import Lower
 #         btech.save(update_fields=['image'])
 
 
-# class PeopleView(APIView):
-#     def post(self, request):
-#         if request.method == "POST":
-#             serializer = PeopleSerializer(data=request.data)
-#             if serializer.is_valid():
-#                 data = serializer.create(request.data)
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         return Response({"message": "{} method is not allowed".format(request.method)})
+class PeopleView(APIView):
+    def post(self, request):
+        if request.method == "POST":
+            serializer = PeopleSerializer(data=request.data)
+            if serializer.is_valid():
+                data = serializer.create(request.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "{} method is not allowed".format(request.method)})
 
 
-# class GetFacultyView(APIView):
-#     def get(self, request):
-#         if request.method == "GET":
-#             try:
-#                 faculty = Faculty.objects.all()
-#             except Faculty.DoesNotExist:
-#                 return Response({"error": "No faculty"}, status=404)
-#             faculty = FacultySerializer(faculty, many=True)
-#             return Response(faculty.data)
-#         return Response({"message": "{} method is not allowed".format(request.method)})
 class GetFacultyView(APIView):
     def get(self, request):
         if request.method == "GET":
             try:
-                faculty = Faculty.objects.annotate(
-                    # Create display order field
-                    display_order=Case(
-                        # Head of Department first
-                        When(
-                            Q(subtitle__icontains='Head of the Department') |
-                            Q(subtitle__icontains='HOD'),
-                            then=Value(1)
-                        ),
-                        # Full Professors next
-                        When(
-                            Q(title__icontains='Professor') & 
-                            ~Q(title__icontains='Associate') & 
-                            ~Q(title__icontains='Assistant'),
-                            then=Value(2)
-                        ),
-                        # Associate Professors
-                        When(
-                            Q(title__icontains='Associate Professor'),
-                            then=Value(3)
-                        ),
-                        # Assistant Professors
-                        When(
-                            Q(title__icontains='Assistant Professor'),
-                            then=Value(4)
-                        ),
-                        default=Value(5),
-                        output_field=IntegerField(),
-                    ),
-                    # Create normalized name field for sorting
-                    name_lower=Lower('name')
-                ).order_by('display_order', 'name_lower')
+                faculty = Faculty.objects.all()
             except Faculty.DoesNotExist:
                 return Response({"error": "No faculty"}, status=404)
-            
             faculty = FacultySerializer(faculty, many=True)
             return Response(faculty.data)
         return Response({"message": "{} method is not allowed".format(request.method)})
+# class GetFacultyView(APIView):
+#     def get(self, request):
+#         if request.method == "GET":
+#             try:
+#                 faculty = Faculty.objects.annotate(
+#                     # Create display order field
+#                     display_order=Case(
+#                         # Head of Department first
+#                         When(
+#                             Q(subtitle__icontains='Head of the Department') |
+#                             Q(subtitle__icontains='HOD'),
+#                             then=Value(1)
+#                         ),
+#                         # Full Professors next
+#                         When(
+#                             Q(title__icontains='Professor') & 
+#                             ~Q(title__icontains='Associate') & 
+#                             ~Q(title__icontains='Assistant'),
+#                             then=Value(2)
+#                         ),
+#                         # Associate Professors
+#                         When(
+#                             Q(title__icontains='Associate Professor'),
+#                             then=Value(3)
+#                         ),
+#                         # Assistant Professors
+#                         When(
+#                             Q(title__icontains='Assistant Professor'),
+#                             then=Value(4)
+#                         ),
+#                         default=Value(5),
+#                         output_field=IntegerField(),
+#                     ),
+#                     # Create normalized name field for sorting
+#                     name_lower=Lower('name')
+#                 ).order_by('display_order', 'name_lower')
+#             except Faculty.DoesNotExist:
+#                 return Response({"error": "No faculty"}, status=404)
+            
+#             faculty = FacultySerializer(faculty, many=True)
+#             return Response(faculty.data)
+#         return Response({"message": "{} method is not allowed".format(request.method)})
 
 class GetStaffView(APIView):
     def get(self, request):
